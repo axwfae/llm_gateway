@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  llm_gateway:
+    build: .
+    container_name: llm_gateway
+    ports:
+      - "18869:18869"
+      - "18866:18866"
+    volumes:
+      - ./config:/app/config
+    restart: unless-stopped
+    environment:
+      - LOG_API_KEY=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
