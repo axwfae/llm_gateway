@@ -182,10 +182,16 @@ podman logs llm_gateway | grep "UPSTREAM_ERROR"
 3. ** docker file **
    - https://hub.docker.com/r/wuyong1977/llm_gateway
   
-<img width="1154" height="538" alt="截图_2026-04-09_10-26-26" src="https://github.com/user-attachments/assets/c1d3dd1c-33a9-4b35-a69f-cdc504540f1d" />
-<img width="920" height="199" alt="截图_2026-04-09_10-25-20" src="https://github.com/user-attachments/assets/9fab37c7-2142-4329-bbf7-2236bdc261d6" />
-<img width="1307" height="673" alt="截图_2026-04-09_10-24-56" src="https://github.com/user-attachments/assets/84cd6fee-2b37-4d6f-819d-781126a435df" />
-<img width="1252" height="704" alt="截图_2026-04-09_10-24-32" src="https://github.com/user-attachments/assets/bdeabff1-9ece-4665-a031-7605541bf710" />
-<img width="1337" height="641" alt="截图_2026-04-09_10-24-10" src="https://github.com/user-attachments/assets/fdeda9d3-3ec3-4f75-afa5-728393dbf7bb" />
+
+
 <img width="1326" height="521" alt="截图_2026-04-09_10-23-51" src="https://github.com/user-attachments/assets/fac599bd-561d-4a44-934b-f714fdd0db28" />
 
+<img width="1337" height="641" alt="截图_2026-04-09_10-24-10" src="https://github.com/user-attachments/assets/fdeda9d3-3ec3-4f75-afa5-728393dbf7bb" />
+
+<img width="1252" height="704" alt="截图_2026-04-09_10-24-32" src="https://github.com/user-attachments/assets/bdeabff1-9ece-4665-a031-7605541bf710" />
+
+<img width="1307" height="673" alt="截图_2026-04-09_10-24-56" src="https://github.com/user-attachments/assets/84cd6fee-2b37-4d6f-819d-781126a435df" />
+
+<img width="920" height="199" alt="截图_2026-04-09_10-25-20" src="https://github.com/user-attachments/assets/9fab37c7-2142-4329-bbf7-2236bdc261d6" />
+
+<img width="1154" height="538" alt="截图_2026-04-09_10-26-26" src="https://github.com/user-attachments/assets/c1d3dd1c-33a9-4b35-a69f-cdc504540f1d" />
