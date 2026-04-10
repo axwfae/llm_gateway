@@ -13,7 +13,7 @@ RUN go build -o /llm_gateway ./cmd/main.go
 
 FROM alpine:latest
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /app
 
