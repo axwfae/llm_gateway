@@ -1,6 +1,6 @@
 # LLM Gateway
 
-> 最新版本：v0.9.4 | 構建日期：2026-04-11
+> 最新版本：v0.9.6 | 構建日期：2026-04-11
 
 ## 專案概述
 
@@ -194,6 +194,8 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| v0.9.6 | 2026-04-11 | 負權重模式：優先選擇已過期的 key，實現真正独立重置时间 |
+| v0.9.5 | 2026-04-11 | 負權重模式：每個 key 獨立重置时间，選擇時先比權重再比重置时间最後隨機 |
 | v0.9.4 | 2026-04-11 | 負權重模式：保持同一 key 直到錯誤才重選，避免每次都重選 |
 | v0.9.3 | 2026-04-11 | 新增 /v1/models 模型列表接口 |
 | v0.9.2 | 2026-04-11 | 負權重重置週期預設值改為 4 小時 (範圍 2-8)、系統設置頁面說明更新為中英雙語 |
@@ -225,9 +227,7 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 
 <img width="1337" height="641" alt="截图_2026-04-09_10-24-10" src="https://github.com/user-attachments/assets/fdeda9d3-3ec3-4f75-afa5-728393dbf7bb" />
 
-<img width="1520" height="719" alt="2026-04-11 12-23-47 的螢幕擷圖" src="https://github.com/user-attachments/assets/1d8dbd65-0173-4e54-b619-0a4212a287b7" />
-
-<img width="1307" height="673" alt="截图_2026-04-09_10-24-56" src="https://github.com/user-attachments/assets/84cd6fee-2b37-4d6f-819d-781126a435df" />
+<img width="1518" height="668" alt="2026-04-11 17-01-54 的螢幕擷圖" src="https://github.com/user-attachments/assets/dddedb3c-4826-402c-84b7-e60833a8d523" />
 
 <img width="1525" height="641" alt="2026-04-11 12-22-33 的螢幕擷圖" src="https://github.com/user-attachments/assets/9001b975-4afc-4935-a09b-b5984eb1808c" />
 
