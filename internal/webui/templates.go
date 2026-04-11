@@ -226,7 +226,7 @@ const APIKeysPage = `
                 <th>關聯服務器 Server</th>
                 <th>API Key</th>
                 <th>負權重 Weight</th>
-                <th>剩餘重置時間 (分鐘)</th>
+                <th>剩餘重置時間 (分鐘) / Remaining Reset Time (min)</th>
                 <th>操作 Actions</th>
             </tr>
         </thead>
