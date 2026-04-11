@@ -225,9 +225,13 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 
 <img width="1337" height="641" alt="截图_2026-04-09_10-24-10" src="https://github.com/user-attachments/assets/fdeda9d3-3ec3-4f75-afa5-728393dbf7bb" />
 
-<img width="1252" height="704" alt="截图_2026-04-09_10-24-32" src="https://github.com/user-attachments/assets/bdeabff1-9ece-4665-a031-7605541bf710" />
+<img width="1520" height="719" alt="2026-04-11 12-23-47 的螢幕擷圖" src="https://github.com/user-attachments/assets/1d8dbd65-0173-4e54-b619-0a4212a287b7" />
 
 <img width="1307" height="673" alt="截图_2026-04-09_10-24-56" src="https://github.com/user-attachments/assets/84cd6fee-2b37-4d6f-819d-781126a435df" />
+
+<img width="1525" height="641" alt="2026-04-11 12-22-33 的螢幕擷圖" src="https://github.com/user-attachments/assets/9001b975-4afc-4935-a09b-b5984eb1808c" />
+
+<img width="1525" height="692" alt="2026-04-11 12-22-55 的螢幕擷圖" src="https://github.com/user-attachments/assets/6a88c767-5fa6-45f4-af5f-09136560bc3e" />
 
 <img width="920" height="199" alt="截图_2026-04-09_10-25-20" src="https://github.com/user-attachments/assets/9fab37c7-2142-4329-bbf7-2236bdc261d6" />
 
