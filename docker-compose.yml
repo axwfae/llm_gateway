@@ -6,13 +6,13 @@ services:
     container_name: llm_gateway
     restart: unless-stopped
     environment:
-      - TZ=Asia/Shanghai    
+      - TZ=Asia/Shanghai
       - LOG_API_KEY=true
     ports:
       - "18869:18869"
       - "18866:18866"
     volumes:
-      - /etc/localtime:/etc/localtime:ro    
+      - /etc/localtime:/etc/localtime:ro
       - ./config:/app/config
     logging:
       driver: "json-file"
