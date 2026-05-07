@@ -33,8 +33,6 @@ LLM Gateway 是一個 LLM API 閘道服務，提供：
 
 ```
 llm_gateway/
-├── backups/                  # 版本備份
-│   ├── v0.1.0/ ~ v0.9.0/
 ├── cmd/main.go              # 主程式入口
 ├── config/config.yaml       # 配置文件
 ├── internal/
