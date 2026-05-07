@@ -1,6 +1,6 @@
 # LLM Gateway
 
-> 最新版本：v0.9.6 | 構建日期：2026-04-11
+> 最新版本：v0.10.1 | 構建日期：2026-05-07
 
 ## 專案概述
 
@@ -10,15 +10,17 @@ LLM Gateway 是一個 LLM API 閘道服務，提供：
 
 ## 功能需求
 
-1. **伺服器設置** - 管理 LLM 伺服器 (名稱、API URL、API 類型)
-2. **伺服器模型設置** - 設定各伺服器的模型 (關聯伺服器)
-3. **API Key 設置** - 管理 API Keys (預設啟用，僅支援新增/刪除)
-4. **本地模型映射** - 將本地模型名稱映射到伺服器模型
+1. **伺服器設置** - 管理 LLM 伺服器 (名稱、API URL、API 類型、獨立超時)
+2. **伺服器模型設置** - 設定各伺服器的模型 (關聯伺服器，支援編輯)
+3. **API Key 設置** - 管理 API Keys (預設啟用，支援新增/刪除)
+4. **本地模型映射** - 將本地模型名稱映射到伺服器模型 (支援編輯)
 5. **API Key 輪換** - 每次請求自動輪換 API Key (支持輪詢模式/負權重模式)
 6. **錯誤重試** - API Key 失敗時自動切換重試 (最多 3 次)
-7. **重啟系統** - 重新載入配置
-8. **日誌記錄** - 記錄 API Key 輪換及上游伺服器錯誤 (預設開啟)
-9. **Timeout 設定** - 可設定請求超時時間 (3-15分鐘)
+7. **分離式超時處理** - 區分連接超時/讀取超時，給予不同權重
+8. **重置負權重** - 手動重置所有 API Key 權重
+9. **重啟系統** - 重新載入配置
+10. **日誌記錄** - 記錄 API Key 輪換及上游伺服器錯誤 (預設開啟)
+11. **Timeout 設定** - 可設定請求超時時間 (3-15分鐘)
 
 ## 技術架構
 
@@ -48,7 +50,7 @@ llm_gateway/
 
 ## API 接口
 
-### Port (可配置，預設 18869)
+### API Port (可配置，預設 18869)
 
 | 接口 | 方法 | 功能 |
 |------|------|------|
@@ -57,7 +59,7 @@ llm_gateway/
 | `/v1/chat/completions` | POST | Chat Completions API |
 | `/v1/*` | ANY | 通用代理 |
 
-### Port (可配置，預設 18866)
+### Web UI Port (可配置，預設 18866)
 
 | 路徑 | 功能 |
 |------|------|
@@ -68,6 +70,19 @@ llm_gateway/
 | `/local-models` | 本地模型映射 |
 | `/settings` | 系統設置 |
 
+### 管理 API (Web UI Port)
+
+| API | 方法 | 功能 |
+|-----|------|------|
+| `/api/servers` | GET/POST/PUT/DELETE | 伺服器 CRUD |
+| `/api/server-models` | GET/POST/PUT/DELETE | 伺服器模型 CRUD |
+| `/api/server-api-keys` | GET/POST/DELETE | API Key CRUD |
+| `/api/local-model-maps` | GET/POST/PUT/DELETE | 本地模型映射 CRUD |
+| `/api/settings` | GET/POST | 系統設置 |
+| `/api/reload` | POST | 重啟系統 |
+| `/api/reset-weights` | POST | 重置所有負權重 |
+| `/api/reset-weights/:serverId` | POST | 重置指定伺服器負權重 |
+
 ## 配置範例 (config/config.yaml)
 
 ```yaml
@@ -76,6 +91,7 @@ servers:
     name: "ollama_c"
     api_url: "https://ollama.com/v1"
     api_type: "openai"
+    timeout: 5  # 獨立超時 (分鐘, 0=使用全局設置)
 
 server_models:
   - id: "xxx"
@@ -103,6 +119,11 @@ settings:
   weight_4xx: 10
   weight_5xx: 50
   max_retries: 3
+  # 新增: 分離式超時設置
+  connect_timeout: 10  # 連接超時 (秒)
+  timeout_weight: 30  # 超時權重
+  connect_timeout_weight: 10  # 連接超時權重
+  enable_retry_on_timeout: false  # 超時是否重試
 ```
 
 ## 使用方式
@@ -180,7 +201,9 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 - 啟用後，每次請求選擇負權重最低的 API Key
 - 錯誤時增加權重：
   - 4xx 錯誤：+weight_4xx (預設 10)
-  - 5xx 錯誤 / 網路錯誤：+weight_5xx (預設 50)
+  - 5xx 錯誤：+weight_5xx (預設 50)
+  - 連接超時：+connect_timeout_weight (預設 10)
+  - 讀取超時：+timeout_weight (預設 30)
 - 每 2-8 小時 (預設 4 小時) 將所有權重重置為 0
 
 ### 錯誤重試功能
@@ -188,12 +211,36 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 - 最多重試次數可設定 (預設 3 次)
 - 4xx 錯誤立即切換 Key
 - 5xx 錯誤繼續重試直到成功或耗盡所有重試次數
+- 超時錯誤可单独控制是否重試 (預設關閉)
 - 未達最大重試次數的錯誤不會回傳給下層
+
+## 分離式超時處理 (v0.10.0 新增)
+
+### 超時類型區分
+- **連接超時** (Connect Timeout)：TCP 連接建立超時
+- **讀取超時** (Response Timeout)：讀取伺服器響應超時
+
+### 權重分類
+| 錯誤類型 | 預設權重 | 說明 |
+|---------|---------|------|
+| 4xx HTTP 錯誤 | 10 | 用戶端錯誤 |
+| 5xx HTTP 錯誤 | 50 | 伺服器端錯誤 |
+| 連接超時 | 10 | 伺服器可能未收到請求 |
+| 讀取超時 | 30 | 伺服器正在處理中 |
+| 臨時錯誤 | 15 | 網路波動 |
+| 網路錯誤 | 50 | 網路層面錯誤 |
+
+### 伺服器級超時
+- 每個 Server 可設定獨立的 Timeout (分鐘)
+- 0 = 使用全局設置
+- 範圍：3-15 分鐘
 
 ## 版本記錄
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| v0.10.1 | 2026-05-07 | 新增伺服器模型編輯功能、新增重置負權重功能 |
+| v0.10.0 | 2026-05-07 | 新增各伺服器獨立 Timeout、新增分離式超時權重處理、新增本地模型映射編輯功能 |
 | v0.9.6 | 2026-04-11 | 負權重模式：優先選擇已過期的 key，實現真正独立重置时间 |
 | v0.9.5 | 2026-04-11 | 負權重模式：每個 key 獨立重置时间，選擇時先比權重再比重置时间最後隨機 |
 | v0.9.4 | 2026-04-11 | 負權重模式：保持同一 key 直到錯誤才重選，避免每次都重選 |
@@ -219,7 +266,8 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 2. **功能擴展**
    - 支援更多 API 類型
    - API Key 映射支援
-3. ** docker file **
+
+3. **Docker**
    - https://hub.docker.com/r/wuyong1977/llm_gateway
 
 
