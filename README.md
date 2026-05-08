@@ -1,6 +1,6 @@
 # LLM Gateway
 
-> 最新版本：v0.10.1 | 構建日期：2026-05-07
+> 最新版本：v0.12.8 | 構建日期：2026-05-08
 
 ## 專案概述
 
@@ -80,6 +80,7 @@ llm_gateway/
 | `/api/reload` | POST | 重啟系統 |
 | `/api/reset-weights` | POST | 重置所有負權重 |
 | `/api/reset-weights/:serverId` | POST | 重置指定伺服器負權重 |
+| `/api/test-key` | POST | 測試 API Key 是否可用 |
 
 ## 配置範例 (config/config.yaml)
 
@@ -147,6 +148,21 @@ podman run -p 8080:8080 -p 9090:9090 \
   -v ./config:/app/config \
   llm_gateway:latest \
   -api-port 8080 -ui-port 9090
+```
+
+### 啟用 Debug 模式
+
+```bash
+# 使用 flag
+podman run -p 18869:18869 -p 18866:18866 \
+  -v ./config:/app/config \
+  llm_gateway:latest \
+  -debug
+
+# 或使用環境變數
+podman run -e DEBUG=true -p 18869:18869 -p 18866:18866 \
+  -v ./config:/app/config \
+  llm_gateway:latest
 ```
 
 ### API 測試
@@ -237,7 +253,11 @@ podman logs llm_gateway | grep "WEIGHT_RESET"
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
-| v0.10.1 | 2026-05-07 | 新增伺服器模型編輯功能、新增重置負權重功能 |
+| v0.12.8 | 2026-05-08 | 簡化 API Key 測試：移除單一測試按鈕、只在列表上方新增測試所有按鈕 |
+| v0.12.7 | 2026-05-08 | 修復 API Key 測試：使用 ServerModel.ModelID、使用正確路徑 /v1/chat/completions |
+| v0.11.4 | 2026-05-08 | 新增 API Key 健康監控功能：3 種模式 (enabled/disabled/auto)、自動測試間隔、狀態指示燈 (藍色/紅色)、備註欄位 |
+| v0.11.2 | 2026-05-07 | Debug 模式控制詳細日誌輸出，減少負擔 |
+| v0.11.1 | 2026-05-07 | 新增 Debug 模式支援 |
 | v0.10.0 | 2026-05-07 | 新增各伺服器獨立 Timeout、新增分離式超時權重處理、新增本地模型映射編輯功能 |
 | v0.9.6 | 2026-04-11 | 負權重模式：優先選擇已過期的 key，實現真正独立重置时间 |
 | v0.9.5 | 2026-04-11 | 負權重模式：每個 key 獨立重置时间，選擇時先比權重再比重置时间最後隨機 |
