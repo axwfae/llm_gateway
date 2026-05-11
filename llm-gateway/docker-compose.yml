@@ -1,0 +1,18 @@
+services:
+  llm_gateway:
+    build: .
+    container_name: llm_gateway
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Taipei
+    ports:
+      - "18869:18869"
+      - "18866:18866"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config:/app/config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
