@@ -1,0 +1,54 @@
+<div class="card">
+    <h2>本地模型映射 Local Model Mapping</h2>
+    <p class="help-text">設定客戶端使用的模型名稱到服務器模型的映射。例如將 "gpt-4" 映射到某個服務器的 "gpt-4-turbo" 模型。</p>
+    <button onclick="showModal('addMapModal')">新增映射 Add Mapping</button>
+</div>
+<div class="card">
+    <table><thead><tr>
+        <th>本地模型 Local Model</th><th>服務器模型 Server Model</th><th>操作 Actions</th>
+    </tr></thead>
+    <tbody id="mapsTable"></tbody></table>
+</div>
+<div class="modal" id="addMapModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3>新增映射 Add Mapping</h3><button class="close" onclick="hideModal('addMapModal')">&times;</button></div>
+        <div class="form-group"><label>本地模型名稱 Local Model</label><input type="text" id="mapLocalModel" placeholder="e.g. my-model"></div>
+        <div class="form-group"><label>服務器模型 Server Model</label><select id="mapServerModel"></select></div>
+        <button onclick="addMap()">新增 Add</button>
+        <button onclick="hideModal('addMapModal')" style="background:#95a5a6;margin-left:8px">取消 Cancel</button>
+    </div>
+</div>
+<div class="modal" id="editMapModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3>編輯映射 Edit Mapping</h3><button class="close" onclick="hideModal('editMapModal')">&times;</button></div>
+        <input type="hidden" id="editMapId">
+        <div class="form-group"><label>本地模型名稱 Local Model</label><input type="text" id="editMapLocalModel"></div>
+        <div class="form-group"><label>服務器模型 Server Model</label><select id="editMapServerModel"></select></div>
+        <button onclick="updateMap()">儲存 Save</button>
+        <button onclick="hideModal('editMapModal')" style="background:#95a5a6;margin-left:8px">取消 Cancel</button>
+    </div>
+</div>
+<script>
+var smNameMap = {};
+function loadAllData(){fetch('/api/server-models').then(r=>r.json()).then(function(d){
+    smNameMap = {};
+    d.server_models.forEach(function(m){smNameMap[m.id]=m.model_name});
+    var opts=d.server_models.map(function(m){return '<option value="'+m.id+'">'+escapeHtml(m.model_name)+' ('+escapeHtml(m.model_id)+')</option>'}).join('');
+    document.getElementById('mapServerModel').innerHTML=opts;
+    document.getElementById('editMapServerModel').innerHTML=opts;
+    loadMaps();
+})}
+function loadMaps(){fetch('/api/local-model-maps').then(r=>r.json()).then(function(d){
+    var rows='';
+    d.local_model_maps.forEach(function(m){
+        var modelName=smNameMap[m.server_model_id]||m.server_model_id;
+        rows+='<tr><td>'+escapeHtml(m.local_model)+'</td><td>'+escapeHtml(modelName)+'</td><td class=actions><button class=small onclick="editMap(\''+m.id+'\',\''+escapeHtml(m.local_model).replace(/'/g,"\\'")+'\',\''+m.server_model_id+'\')">編輯 Edit</button><button class="small danger" onclick="deleteMap(\''+m.id+'\')">刪除 Delete</button></td></tr>'
+    });
+    document.getElementById('mapsTable').innerHTML=rows;
+})}
+function addMap(){fetch('/api/local-model-maps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({local_model:document.getElementById('mapLocalModel').value,server_model_id:document.getElementById('mapServerModel').value})}).then(r=>r.json()).then(function(d){if(d.status=='ok'){hideModal('addModelModal');loadMaps()}else alert('Error: '+d.error)})}
+function editMap(id,lm,sm){document.getElementById('editMapId').value=id;document.getElementById('editMapLocalModel').value=lm;document.getElementById('editMapServerModel').value=sm;showModal('editMapModal')}
+function updateMap(){fetch('/api/local-model-maps',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:document.getElementById('editMapId').value,local_model:document.getElementById('editMapLocalModel').value,server_model_id:document.getElementById('editMapServerModel').value})}).then(r=>r.json()).then(function(d){if(d.status=='ok'){hideModal('editMapModal');loadMaps()}else alert('Error: '+d.error)})}
+function deleteMap(id){if(!confirm('確定刪除? Delete?'))return;fetch('/api/local-model-maps/'+id,{method:'DELETE'}).then(r=>r.json()).then(function(d){if(d.status=='ok')loadMaps();else alert('Error: '+d.error)})}
+loadAllData();
+</script>

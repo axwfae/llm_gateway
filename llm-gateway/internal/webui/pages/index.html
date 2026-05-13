@@ -1,0 +1,54 @@
+<div class="grid">
+    <div class="stat-card" onclick="location.href='/servers'">
+        <div class="icon">🖥️</div>
+        <div class="number" id="statServers">-</div>
+        <div class="label">服務器 Servers</div>
+    </div>
+    <div class="stat-card" onclick="location.href='/server-models'">
+        <div class="icon">📋</div>
+        <div class="number" id="statModels">-</div>
+        <div class="label">模型 Models</div>
+    </div>
+    <div class="stat-card" onclick="location.href='/api-keys'">
+        <div class="icon">🔑</div>
+        <div class="number" id="statKeys">-</div>
+        <div class="label">API Keys</div>
+    </div>
+    <div class="stat-card" onclick="location.href='/local-models'">
+        <div class="icon">🔗</div>
+        <div class="number" id="statMaps">-</div>
+        <div class="label">映射 Mappings</div>
+    </div>
+</div>
+<div class="card">
+    <h2>快速開始 Quick Start</h2>
+    <ol style="margin-left:20px;line-height:2;font-size:14px">
+        <li>在 <a href="/servers">服務器 Servers</a> 頁面新增 LLM 服務器</li>
+        <li>在 <a href="/server-models">模型 Models</a> 頁面新增每個服務器支援的模型</li>
+        <li>在 <a href="/api-keys">API Keys</a> 頁面新增 API Key</li>
+        <li>在 <a href="/local-models">映射 Mapping</a> 頁面設定本地模型名稱到服務器模型的映射</li>
+        <li>透過 API Port (<code>:18869</code>) 調用 <code>/v1/chat/completions</code></li>
+    </ol>
+</div>
+<div class="card">
+    <h2>系統狀態 System Status</h2>
+    <p>版本 Version: <span id="appVersion">-</span></p>
+    <p>API Proxy Port 18869: <span id="proxyStatus" class="badge badge-yellow">檢查中...</span></p>
+    <p>Web UI Port 18866: <span class="badge badge-green">運行中 Running</span></p>
+</div>
+<script>
+function loadVersion(){fetch('/api/version').then(r=>r.json()).then(function(d){document.getElementById('appVersion').textContent='v'+d.version;}).catch(function(){})}
+loadVersion();
+Promise.all([
+    fetch('/api/servers').then(r=>r.json()).then(d=>document.getElementById('statServers').textContent=(d.servers||[]).length).catch(()=>{}),
+    fetch('/api/server-models').then(r=>r.json()).then(d=>document.getElementById('statModels').textContent=(d.server_models||[]).length).catch(()=>{}),
+    fetch('/api/server-api-keys').then(r=>r.json()).then(d=>document.getElementById('statKeys').textContent=(d.server_api_keys||[]).length).catch(()=>{}),
+    fetch('/api/local-model-maps').then(r=>r.json()).then(d=>document.getElementById('statMaps').textContent=(d.local_model_maps||[]).length).catch(()=>{})
+]).then(()=>{
+    document.getElementById('proxyStatus').textContent='運行中 Running';
+    document.getElementById('proxyStatus').className='badge badge-green';
+}).catch(()=>{
+    document.getElementById('proxyStatus').textContent='無法連接 Error';
+    document.getElementById('proxyStatus').className='badge badge-red';
+});
+</script>
